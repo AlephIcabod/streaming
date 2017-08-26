@@ -10,33 +10,58 @@
     <h1>Streaming-Server</h1>
     <p>This page transmit on real-time the streaming of your webcam</p>  
     <video id="video"></video>
-    <canvas id="canvas" width="1280" height="720"></canvas>
+    <canvas id="canvas" width="1000" height="720"></canvas>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        (function(d,io){
+        (function(d,w,n,io){
             'use strict'
-
             var io=io(),                
                 startCamara=false,
                 video=d.querySelector("#video"),
                 canvas=d.querySelector("#canvas"),
                 context=canvas.getContext('2d');
-                navigator.streaming=(navigator.getUserMedia||
-                                    navigator.webkitGetUserMedia||
-                                    navigator.mozGetUserMedia||
-                                    navigator.msGetUserMedia)
+                n.streaming=(n.getUserMedia||
+                             n.webkitGetUserMedia||
+                             n.mozGetUserMedia||
+                             n.msGetUserMedia)
         
-                navigator.streaming({
+                n.streaming({
                     video : true,
                     audio : false,                    
                 },function(stream){
                     startCamara=true;
-                    video.src=window.URL.createObjectURL(stream)
+                    video.src=w.URL.createObjectURL(stream)
                 },function(err){
                     console.log('WebCam is not available for streaming',err);
                 });
 
-        }(document,io))
+                w.playVideo=(function(cb){
+                    return w.requestAnimationFrame||
+                    w.webkitRequestAnimationFrame||
+                    w.mozRequestAnimationFrame||
+                    w.msRequestAnimationFrame||
+                    function(cb){
+                        w.setTimeout(cb,10);
+                    }
+                })()
+
+                function streamVideo(c,can,v){                    
+                    var outputStream=can.toDataURL('image/jpeg',.2)
+                    c.drawImage(v,0,0);
+                    if(startCamara)
+                        io.emit('streaming',outputStream);
+
+                    playVideo(function(){
+                        streamVideo(c,can,v);
+                    });
+
+                }
+                w.addEventListener('load',function(){
+                    video.autoplay=true;
+                    video.style.display='none';
+                    streamVideo(context,canvas,video);
+                });
+        }(document,window,navigator,io))
     </script>
 </body>
 </html>
