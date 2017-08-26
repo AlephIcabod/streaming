@@ -17,7 +17,9 @@ app
     .get('/streaming',(req,res)=>
         res.sendFile(`${publicDir}/server.html`)
     )
-    
+
 io.on('connection',socket=>{
-    
+    socket.on('streaming',image=>{
+        io.emit('playstream',image)
+    });
 })

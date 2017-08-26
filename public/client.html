@@ -8,14 +8,21 @@
 </head>
 <body>
     <h1>Straming client</h1>
+    <p>Getting Streaming of transmition</p>
+
+    <img alt="" id="streaming">
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        (function(io){
+        (function(d,w,n,io){
             'use strict'
+            var io=io(),
+            streaming=d.querySelector("#streaming");
+            io.on('playstream',function(image){
+                streaming.src=image;
+            })
 
-            var io=io();
-
-        }(io))
+        }(document,window,navigator,io))
     </script>
 </body>
 </html>
